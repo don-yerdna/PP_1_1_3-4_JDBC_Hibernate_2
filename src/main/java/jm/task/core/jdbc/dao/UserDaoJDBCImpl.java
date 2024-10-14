@@ -3,91 +3,82 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
+    Connection connection = Util.getConnection();
+
     public UserDaoJDBCImpl() {
 
     }
 
+    @Override
     public void createUsersTable() {
-        Connection connection = Util.getConnection();
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
-            String sql = "CREATE TABLE IF NOT EXISTS `users` (" +
-                    "  `id` BIGINT(255) NOT NULL AUTO_INCREMENT," +
-                    "  `name` VARCHAR(45) NULL," +
-                    "  `last_name` VARCHAR(45) NULL," +
-                    "  `age` TINYINT(255) NULL," +
-                    "  PRIMARY KEY (`id`));";
-            stmt.execute(sql);
+        PreparedStatement preparedStatement = null;
+        String sql = "CREATE TABLE IF NOT EXISTS `users` (" +
+                "  `id` BIGINT(255) NOT NULL AUTO_INCREMENT," +
+                "  `name` VARCHAR(45) NULL," +
+                "  `last_name` VARCHAR(45) NULL," +
+                "  `age` TINYINT(255) NULL," +
+                "  PRIMARY KEY (`id`))";
+        try (Connection connection = Util.getConnection()) {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.execute();
         } catch (SQLException e) {
             System.err.println("Не удалось создать таблицу");
         }
-        if (connection != null) {
-            Util.closeConnection(connection);
-        }
     }
 
+    @Override
     public void dropUsersTable() {
-        Connection connection = Util.getConnection();
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
-            String sql = "DROP TABLE IF EXISTS users;";
-            stmt.execute(sql);
+        PreparedStatement preparedStatement = null;
+        String sql = "DROP TABLE IF EXISTS users";
+        try (Connection connection = Util.getConnection()) {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.execute();
         } catch (SQLException e) {
             System.err.println("Не удалось удалить таблицу");
         }
-        if (connection != null) {
-            Util.closeConnection(connection);
-        }
     }
 
+    @Override
     public void saveUser(String name, String lastName, byte age) {
-        Connection connection = Util.getConnection();
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
-            String sql = "INSERT INTO `users` (`name`, `last_name`, `age`) VALUES ('" + name + "', '" + lastName + "', '" + age + "');";
-            stmt.execute(sql);
+        PreparedStatement preparedStatement = null;
+        String sql = "INSERT INTO users (name, last_name, age) VALUES (?,?,?)";
+        try (Connection connection = Util.getConnection()) {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setByte(3, age);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Не удалось создать юзера");
         }
-        if (connection != null) {
-            Util.closeConnection(connection);
-        }
     }
 
+    @Override
     public void removeUserById(long id) {
-        Connection connection = Util.getConnection();
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
-            String sql = "DELETE FROM users WHERE (id = " + id + ");";
-            stmt.execute(sql);
+        PreparedStatement preparedStatement = null;
+        String sql = "DELETE FROM users WHERE (id = ?)";
+        try (Connection connection = Util.getConnection()) {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Не удалось удалить юзера");
         }
-        if (connection != null) {
-            Util.closeConnection(connection);
-        }
     }
 
+    @Override
     public List<User> getAllUsers() {
         ArrayList<User> users = new ArrayList<>();
-        Connection connection = Util.getConnection();
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
-            String sql = "SELECT * FROM users;";
-            ResultSet rs = stmt.executeQuery(sql);
+        PreparedStatement preparedStatement = null;
+        String sql = "SELECT * FROM users";
+        try (Connection connection = Util.getConnection()) {
+            preparedStatement = connection.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 User user = new User();
                 user.setId(rs.getLong("id"));
@@ -96,28 +87,21 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge(rs.getByte("age"));
                 users.add(user);
             }
-
         } catch (SQLException e) {
             System.err.println("Не удалось создать спсок юзеров");
-        }
-        if (connection != null) {
-            Util.closeConnection(connection);
         }
         return users;
     }
 
+    @Override
     public void cleanUsersTable() {
-        Connection connection = Util.getConnection();
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
-            String sql = "DELETE FROM users;";
-            stmt.execute(sql);
+        PreparedStatement preparedStatement = null;
+        String sql = "DELETE FROM users";
+        try (Connection connection = Util.getConnection()) {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.execute();
         } catch (SQLException e) {
             System.err.println("Не удалось очистить таблицу");
-        }
-        if (connection != null) {
-            Util.closeConnection(connection);
         }
     }
 }

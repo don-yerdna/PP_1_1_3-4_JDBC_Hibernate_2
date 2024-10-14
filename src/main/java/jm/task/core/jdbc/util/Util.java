@@ -21,12 +21,4 @@ public class Util {
         }
         return connection;
     }
-
-    public static void closeConnection(Connection connection) {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            System.err.println("Не удалось закрыть соединение с БД");
-        }
-    }
 }
