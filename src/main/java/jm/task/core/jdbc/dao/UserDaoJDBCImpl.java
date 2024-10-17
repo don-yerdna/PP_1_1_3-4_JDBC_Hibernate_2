@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    Connection connection = Util.getConnection();
 
     public UserDaoJDBCImpl() {
 
@@ -33,10 +32,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        PreparedStatement preparedStatement = null;
         String sql = "DROP TABLE IF EXISTS users";
-        try (Connection connection = Util.getConnection()) {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql)) {
             preparedStatement.execute();
         } catch (SQLException e) {
             System.err.println("Не удалось удалить таблицу");
@@ -45,10 +42,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        PreparedStatement preparedStatement = null;
         String sql = "INSERT INTO users (name, last_name, age) VALUES (?,?,?)";
-        try (Connection connection = Util.getConnection()) {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql)) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
@@ -60,10 +55,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        PreparedStatement preparedStatement = null;
         String sql = "DELETE FROM users WHERE (id = ?)";
-        try (Connection connection = Util.getConnection()) {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -74,10 +67,8 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         ArrayList<User> users = new ArrayList<>();
-        PreparedStatement preparedStatement = null;
         String sql = "SELECT * FROM users";
-        try (Connection connection = Util.getConnection()) {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql)) {
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 User user = new User();
@@ -95,10 +86,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        PreparedStatement preparedStatement = null;
         String sql = "DELETE FROM users";
-        try (Connection connection = Util.getConnection()) {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = Util.getConnection().prepareStatement(sql)) {
             preparedStatement.execute();
         } catch (SQLException e) {
             System.err.println("Не удалось очистить таблицу");
