@@ -7,17 +7,22 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        UserServiceImpl userDaoJDBC = new UserServiceImpl();
-        userDaoJDBC.createUsersTable();
-        userDaoJDBC.saveUser("Vasya", "Pupkin", (byte) 48);
-        userDaoJDBC.saveUser("Sidor", "Sidorov", (byte) 32);
-        userDaoJDBC.saveUser("Yuriy", "Gagarin", (byte) 24);
-        userDaoJDBC.saveUser("Noname", "Nonameus", (byte) 15);
-        List<User> users = userDaoJDBC.getAllUsers();
+        UserServiceImpl userDao = new UserServiceImpl();
+        userDao.createUsersTable();
+        userDao.saveUser("Vasya", "Pupkin", (byte) 48);
+        userDao.saveUser("Sidor", "Sidorov", (byte) 32);
+        userDao.saveUser("Yuriy", "Gagarin", (byte) 24);
+        userDao.saveUser("Noname", "Nonameus", (byte) 15);
+        List<User> users = userDao.getAllUsers();
         for (User user : users) {
             System.out.println(user.toString());
         }
-        userDaoJDBC.cleanUsersTable();
-        userDaoJDBC.dropUsersTable();
+        userDao.removeUserById(2);
+        List<User> users1 = userDao.getAllUsers();
+        for (User user : users1) {
+            System.out.println(user.toString());
+        }
+        userDao.cleanUsersTable();
+        userDao.dropUsersTable();
     }
 }
